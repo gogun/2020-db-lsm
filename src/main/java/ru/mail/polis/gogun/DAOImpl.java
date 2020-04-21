@@ -1,19 +1,21 @@
-package ru.mail.polis;
+package ru.mail.polis.gogun;
 
 import com.google.common.collect.Iterators;
 import org.jetbrains.annotations.NotNull;
+import ru.mail.polis.DAO;
+import ru.mail.polis.Record;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.NavigableMap;
 import java.util.TreeMap;
 
-public class ImplDAO implements DAO {
+public class DAOImpl implements DAO {
 
-    private final Map<ByteBuffer, ByteBuffer> map;
+    private final NavigableMap<ByteBuffer, ByteBuffer> map;
 
-    ImplDAO() {
+    public DAOImpl() {
         map = new TreeMap<>();
     }
 
@@ -21,11 +23,10 @@ public class ImplDAO implements DAO {
     @Override
     public Iterator<Record> iterator(@NotNull final ByteBuffer from) throws IOException {
         return Iterators.transform(
-                map.entrySet()
-                        .stream()
-                        .dropWhile(e -> !from.equals(e.getKey()) && map.containsKey(from))
+                map.tailMap(from)
+                        .entrySet()
                         .iterator(),
-                e -> new Record(e.getKey(), e.getValue()));
+                e -> Record.of(e.getKey(), e.getValue()));
     }
 
     @Override
