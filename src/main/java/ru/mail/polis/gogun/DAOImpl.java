@@ -34,6 +34,11 @@ public class DAOImpl implements DAO {
     private static final Logger logger = Logger.getLogger(DAOImpl.class.getName());
     private int generation;
 
+    /**
+     * @param storage
+     * @param flushThreshold
+     * @throws IOException
+     */
     public DAOImpl(@NotNull final File storage, final long flushThreshold) throws IOException {
         this.storage = storage;
         this.flushThreshold = flushThreshold;
