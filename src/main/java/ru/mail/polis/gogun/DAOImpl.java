@@ -35,7 +35,7 @@ public class DAOImpl implements DAO {
     private int generation;
 
     /**
-     * implementation of lsm
+     * implementation of lsm.
      *
      * @param storage directory with sstables
      * @param flushThreshold threshold to write data
