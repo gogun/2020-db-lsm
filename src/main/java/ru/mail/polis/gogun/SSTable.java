@@ -18,7 +18,7 @@ final class SSTable implements Table {
     final private int numOffsets;
     final private long dataSize;
 
-    public SSTable(@NotNull File file) throws IOException {
+    public SSTable(@NotNull final File file) throws IOException {
         this.fc = FileChannel.open(file.toPath(), StandardOpenOption.READ);
         final long fileSize = fc.size();
         final ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES);
@@ -47,7 +47,6 @@ final class SSTable implements Table {
 
     @NotNull
     private Row row(final int row) throws IOException {
-
         long offset;
         final ByteBuffer key = key(row);
         final ByteBuffer startPos = ByteBuffer.allocate(Long.BYTES);
@@ -75,7 +74,7 @@ final class SSTable implements Table {
 
     }
 
-
+    @NotNull
     private int binarySearch(@NotNull final ByteBuffer from) throws IOException {
         int l = 0;
         int r = numOffsets - 1;
@@ -97,7 +96,7 @@ final class SSTable implements Table {
 
     @NotNull
     @Override
-    public Iterator<Row> iterator(@NotNull ByteBuffer from) throws IOException {
+    public Iterator<Row> iterator(@NotNull final ByteBuffer from) throws IOException {
         return new Iterator<>() {
             int pos = binarySearch(from);
 
@@ -117,10 +116,9 @@ final class SSTable implements Table {
         };
     }
 
-    public static void serialize(@NotNull File file, Iterator<Row> iterator) throws IOException {
-
+    public static void serialize(@NotNull final File file, final Iterator<Row> iterator) throws IOException {
         final List<ByteBuffer> offsets = new ArrayList<>();
-        try (final FileChannel fc = new FileOutputStream(file).getChannel()) {
+        try (FileChannel fc = new FileOutputStream(file).getChannel()) {
             while (iterator.hasNext()) {
                 offsets.add(ByteBuffer.allocate(Long.BYTES).putLong(fc.position()).rewind());
 
@@ -150,23 +148,21 @@ final class SSTable implements Table {
 
             }
 
-            for (ByteBuffer offset : offsets) {
+            for (final ByteBuffer offset : offsets) {
                 fc.write(offset);
             }
 
             fc.write(ByteBuffer.allocate(Integer.BYTES).putInt(offsets.size()).rewind());
-
-
         }
     }
 
     @Override
-    public void upsert(@NotNull ByteBuffer key, @NotNull ByteBuffer value) throws IOException {
+    public void upsert(@NotNull final ByteBuffer key, @NotNull final ByteBuffer value) {
         throw new UnsupportedOperationException("Immutable");
     }
 
     @Override
-    public void remove(@NotNull ByteBuffer key) throws IOException {
+    public void remove(@NotNull final ByteBuffer key) {
         throw new UnsupportedOperationException("Immutable");
     }
 

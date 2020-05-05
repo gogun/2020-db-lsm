@@ -12,7 +12,12 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+
+import java.util.Iterator;
+import java.util.NavigableMap;
+import java.util.List;
+import java.util.TreeMap;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -35,13 +40,13 @@ public class DAOImpl implements DAO {
         this.flushThreshold = flushThreshold;
         this.memTable = new MemTable();
         this.ssTables = new TreeMap<>();
-        try (final Stream<Path> files = Files.list(storage.toPath())) {
+        try (Stream<Path> files = Files.list(storage.toPath())) {
             files.filter(path -> path.toString().endsWith(SUFFIX)).forEach(f -> {
                 try {
                     final String name = f.getFileName().toString();
-                    final int generation = Integer.parseInt(name.substring(0, name.indexOf(SUFFIX)));
-                    this.generation = Math.max(this.generation, generation);
-                    ssTables.put(generation, new SSTable(f.toFile()));
+                    final int gen = Integer.parseInt(name.substring(0, name.indexOf(SUFFIX)));
+                    this.generation = Math.max(this.generation, gen);
+                    ssTables.put(gen, new SSTable(f.toFile()));
 
                 } catch (IOException e) {
                     logger.info("ctor bug");

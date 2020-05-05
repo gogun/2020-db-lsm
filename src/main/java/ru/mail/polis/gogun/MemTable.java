@@ -17,7 +17,7 @@ final class MemTable implements Table {
 
     @NotNull
     @Override
-    public Iterator<Row> iterator(@NotNull ByteBuffer from) throws IOException {
+    public Iterator<Row> iterator(@NotNull final ByteBuffer from) throws IOException {
         return Iterators.transform(
                 map.tailMap(from)
                         .entrySet()
@@ -26,29 +26,22 @@ final class MemTable implements Table {
     }
 
     @Override
-    public void upsert(@NotNull ByteBuffer key, @NotNull ByteBuffer value) throws IOException {
-        Value value1 = map.get(key);
-
-        if (value1 != null) {
-            sizeInBytes += value.remaining() - value1.getData().remaining();
-        } else {
-            sizeInBytes += key.remaining() + value.remaining() + Long.BYTES;
-        }
+    public void upsert(@NotNull final ByteBuffer key, @NotNull final ByteBuffer value) throws IOException {
+        final Value valueToCheck = map.get(key);
+        this.sizeInBytes += valueToCheck != null ? value.remaining() - valueToCheck.getData().remaining() : key.remaining() + value.remaining() + Long.BYTES;
         map.put(key.duplicate(), new Value(System.currentTimeMillis(), value.duplicate()));
         size = map.size();
     }
 
-
     @Override
-    public void remove(@NotNull ByteBuffer key) throws IOException {
-
-        Value value = map.get(key);
+    public void remove(@NotNull final ByteBuffer key) throws IOException {
+        final Value value = map.get(key);
 
         if (!map.containsKey(key)) {
-            sizeInBytes += Long.BYTES + key.remaining();
+            this.sizeInBytes += Long.BYTES + key.remaining();
         }
         if (value != null && !value.isTompstone()) {
-            sizeInBytes -= value.getData().remaining();
+            this.sizeInBytes -= value.getData().remaining();
         }
         map.put(key.duplicate(), new Value(System.currentTimeMillis()));
         size = map.size();
@@ -59,7 +52,7 @@ final class MemTable implements Table {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         map.clear();
     }
 
