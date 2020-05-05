@@ -35,10 +35,12 @@ public class DAOImpl implements DAO {
     private int generation;
 
     /**
-     * @param storage
-     * @param flushThreshold
-     * @throws IOException
+     *
+     * @param storage filename
+     * @param flushThreshold threshold to write data
+     * @throws IOException io error
      */
+
     public DAOImpl(@NotNull final File storage, final long flushThreshold) throws IOException {
         this.storage = storage;
         this.flushThreshold = flushThreshold;
