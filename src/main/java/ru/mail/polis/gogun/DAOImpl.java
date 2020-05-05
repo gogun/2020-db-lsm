@@ -22,7 +22,7 @@ public class DAOImpl implements DAO {
     private static final String TEMP = ".tmp";
 
     private MemTable memTable;
-    private final NavigableMap<Integer, Table>  ssTables;
+    private final NavigableMap<Integer, Table> ssTables;
 
     @NotNull
     private final File storage;
@@ -35,7 +35,7 @@ public class DAOImpl implements DAO {
         this.flushThreshold = flushThreshold;
         this.memTable = new MemTable();
         this.ssTables = new TreeMap<>();
-        try(final Stream<Path> files = Files.list(storage.toPath())) {
+        try (final Stream<Path> files = Files.list(storage.toPath())) {
             files.filter(path -> path.toString().endsWith(SUFFIX)).forEach(f -> {
                 try {
                     final String name = f.getFileName().toString();

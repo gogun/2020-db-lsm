@@ -85,7 +85,7 @@ final class SSTable implements Table {
 
             if (cmp < 0) {
                 l = mid + 1;
-            } else if (cmp > 0){
+            } else if (cmp > 0) {
                 r = mid - 1;
             } else {
                 return mid;

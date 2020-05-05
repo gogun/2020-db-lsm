@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.ByteBuffer;
 import java.util.Optional;
 
-final class Value implements Comparable<Value>{
+final class Value implements Comparable<Value> {
 
     private final long timestamp;
     @NotNull
