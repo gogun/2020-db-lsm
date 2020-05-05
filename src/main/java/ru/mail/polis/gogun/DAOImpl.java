@@ -12,12 +12,11 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-
 import java.util.Iterator;
-import java.util.NavigableMap;
 import java.util.List;
-import java.util.TreeMap;
+import java.util.NavigableMap;
 import java.util.ArrayList;
+import java.util.TreeMap;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -33,7 +32,7 @@ public class DAOImpl implements DAO {
     private final File storage;
     private final long flushThreshold;
     private static final Logger logger = Logger.getLogger(DAOImpl.class.getName());
-    private int generation = 0;
+    private int generation;
 
     public DAOImpl(@NotNull final File storage, final long flushThreshold) throws IOException {
         this.storage = storage;

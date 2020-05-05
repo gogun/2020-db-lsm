@@ -11,7 +11,7 @@ final class Value implements Comparable<Value> {
     @NotNull
     private final Optional<ByteBuffer> data;
 
-    Value(final long timestamp, @NotNull ByteBuffer data) {
+    Value(final long timestamp, @NotNull final ByteBuffer data) {
         this.timestamp = timestamp;
         this.data = Optional.of(data);
     }

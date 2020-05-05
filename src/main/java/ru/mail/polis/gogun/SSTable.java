@@ -14,9 +14,9 @@ import java.util.List;
 
 final class SSTable implements Table {
     @NotNull
-    final private FileChannel fc;
-    final private int numOffsets;
-    final private long dataSize;
+    private final FileChannel fc;
+    private final int numOffsets;
+    private final long dataSize;
 
     public SSTable(@NotNull final File file) throws IOException {
         this.fc = FileChannel.open(file.toPath(), StandardOpenOption.READ);
@@ -133,7 +133,10 @@ final class SSTable implements Table {
                 //timestamp
                 fc.write(ByteBuffer.allocate(Long.BYTES).putLong(value.getTimestamp()).rewind());
 
-                if (!value.isTompstone()) {
+                if (value.isTompstone()) {
+                    //isAlive
+                    fc.write(ByteBuffer.allocate(Byte.BYTES).put((byte) 0).rewind());
+                } else {
                     final ByteBuffer data = value.getData();
                     //isAlive
                     fc.write(ByteBuffer.allocate(Byte.BYTES).put((byte) 1).rewind());
@@ -141,9 +144,6 @@ final class SSTable implements Table {
                     fc.write(ByteBuffer.allocate(Integer.BYTES).putInt(data.remaining()).rewind());
                     //valueBytes
                     fc.write(data);
-                } else {
-                    //isAlive
-                    fc.write(ByteBuffer.allocate(Byte.BYTES).put((byte) 0).rewind());
                 }
 
             }

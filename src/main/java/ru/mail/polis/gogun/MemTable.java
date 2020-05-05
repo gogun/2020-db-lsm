@@ -12,7 +12,7 @@ import java.util.TreeMap;
 final class MemTable implements Table {
 
     private final NavigableMap<ByteBuffer, Value> map = new TreeMap<>();
-    private long sizeInBytes = 0L;
+    private long sizeInBytes;
     private int size;
 
     @NotNull
@@ -28,7 +28,8 @@ final class MemTable implements Table {
     @Override
     public void upsert(@NotNull final ByteBuffer key, @NotNull final ByteBuffer value) throws IOException {
         final Value valueToCheck = map.get(key);
-        this.sizeInBytes += valueToCheck != null ? value.remaining() - valueToCheck.getData().remaining() : key.remaining() + value.remaining() + Long.BYTES;
+        this.sizeInBytes += valueToCheck == null ? key.remaining() + value.remaining() + Long.BYTES
+                : value.remaining() - valueToCheck.getData().remaining();
         map.put(key.duplicate(), new Value(System.currentTimeMillis(), value.duplicate()));
         size = map.size();
     }
