@@ -21,7 +21,7 @@ final class Value implements Comparable<Value> {
         this.data = Optional.empty();
     }
 
-    boolean isTompstone() {
+    boolean isTombstone() {
         return data.isEmpty();
     }
 

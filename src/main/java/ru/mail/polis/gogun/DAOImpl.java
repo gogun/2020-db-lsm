@@ -79,7 +79,7 @@ public class DAOImpl implements DAO {
         });
         final Iterator<Row> merged = Iterators.mergeSorted(iters, Row.COMPARATOR);
         final Iterator<Row> fresh = Iters.collapseEquals(merged, Row::getKey);
-        final Iterator<Row> alive = Iterators.filter(fresh, e -> !e.getValue().isTompstone());
+        final Iterator<Row> alive = Iterators.filter(fresh, e -> !e.getValue().isTombstone());
 
         return Iterators.transform(alive, e -> Record.of(e.getKey(), e.getValue().getData()));
     }

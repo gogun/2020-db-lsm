@@ -27,24 +27,29 @@ final class MemTable implements Table {
 
     @Override
     public void upsert(@NotNull final ByteBuffer key, @NotNull final ByteBuffer value) throws IOException {
-        final Value valueToCheck = map.get(key);
-        this.sizeInBytes += valueToCheck == null ? key.remaining() + value.remaining() + Long.BYTES
-                : value.remaining() - valueToCheck.getData().remaining();
-        map.put(key.duplicate(), new Value(System.currentTimeMillis(), value.duplicate()));
+        final Value valueToCheck = map.put(key.duplicate(), new Value(System.currentTimeMillis(), value.duplicate()));
+        if (valueToCheck == null) {
+            this.sizeInBytes += key.remaining() + value.remaining() + Long.BYTES;
+        } else {
+            this.sizeInBytes += value.remaining() - valueToCheck.getData().remaining();
+        }
+
         size = map.size();
     }
 
     @Override
     public void remove(@NotNull final ByteBuffer key) throws IOException {
-        final Value value = map.get(key);
 
         if (!map.containsKey(key)) {
             this.sizeInBytes += Long.BYTES + key.remaining();
         }
-        if (value != null && !value.isTompstone()) {
+
+        final Value value = map.put(key.duplicate(), new Value(System.currentTimeMillis()));
+
+        if (value != null && !value.isTombstone()) {
             this.sizeInBytes -= value.getData().remaining();
         }
-        map.put(key.duplicate(), new Value(System.currentTimeMillis()));
+
         size = map.size();
     }
 

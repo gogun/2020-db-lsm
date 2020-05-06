@@ -133,7 +133,7 @@ final class SSTable implements Table {
                 //timestamp
                 fc.write(ByteBuffer.allocate(Long.BYTES).putLong(value.getTimestamp()).rewind());
 
-                if (value.isTompstone()) {
+                if (value.isTombstone()) {
                     //isAlive
                     fc.write(ByteBuffer.allocate(Byte.BYTES).put((byte) 0).rewind());
                 } else {
