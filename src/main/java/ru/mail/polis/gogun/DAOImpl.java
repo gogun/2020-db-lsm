@@ -12,12 +12,15 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+
 import java.util.ArrayList;
+import java.util.Map.Entry;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.util.stream.Stream;
 
 public class DAOImpl implements DAO {
@@ -41,8 +44,8 @@ public class DAOImpl implements DAO {
      * @param flushThreshold threshold to write data
      * @throws IOException io error
      */
-
     public DAOImpl(@NotNull final File storage, final long flushThreshold) throws IOException {
+        assert flushThreshold > 0L;
         this.storage = storage;
         this.flushThreshold = flushThreshold;
         this.memTable = new MemTable();
@@ -54,15 +57,13 @@ public class DAOImpl implements DAO {
                     final int gen = Integer.parseInt(name.substring(0, name.indexOf(SUFFIX)));
                     this.generation = Math.max(this.generation, gen);
                     ssTables.put(gen, new SSTable(f.toFile()));
-
                 } catch (IOException e) {
-                    logger.info("ctor bug");
+                    logger.log(Level.SEVERE, "ctor bug", e);
                 } catch (NumberFormatException e) {
-                    logger.info("bad name");
+                    logger.log(Level.SEVERE, "bad name", e);
                 }
             });
         }
-
     }
 
     @NotNull
@@ -74,7 +75,7 @@ public class DAOImpl implements DAO {
             try {
                 iters.add(t.iterator(from));
             } catch (IOException e) {
-                logger.info("iter fail");
+                logger.log(Level.SEVERE, "iter fail", e);
             }
         });
         final Iterator<Row> merged = Iterators.mergeSorted(iters, Row.COMPARATOR);
@@ -119,8 +120,8 @@ public class DAOImpl implements DAO {
         if (memTable.getSize() > 0) {
             flush();
         }
-        for (int i = 0; i < ssTables.size(); i++) {
-            ssTables.get(i).close();
+        for (Entry<Integer, Table> elem : ssTables.entrySet()) {
+            elem.getValue().close();
         }
     }
 }

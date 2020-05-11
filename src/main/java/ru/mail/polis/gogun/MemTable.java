@@ -39,13 +39,10 @@ final class MemTable implements Table {
 
     @Override
     public void remove(@NotNull final ByteBuffer key) throws IOException {
-
-        if (!map.containsKey(key)) {
+        final Value value = map.put(key.duplicate(), new Value(System.currentTimeMillis()));
+        if (value == null) {
             this.sizeInBytes += Long.BYTES + key.remaining();
         }
-
-        final Value value = map.put(key.duplicate(), new Value(System.currentTimeMillis()));
-
         if (value != null && !value.isTombstone()) {
             this.sizeInBytes -= value.getData().remaining();
         }

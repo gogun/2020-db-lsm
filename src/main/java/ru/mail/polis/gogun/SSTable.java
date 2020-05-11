@@ -25,7 +25,6 @@ final class SSTable implements Table {
         fc.read(buf, fileSize - Integer.BYTES);
         this.numOffsets = buf.rewind().getInt();
         this.dataSize = fileSize - Integer.BYTES - numOffsets * Long.BYTES;
-
     }
 
     @NotNull
@@ -41,6 +40,7 @@ final class SSTable implements Table {
         //read key
         final ByteBuffer key = ByteBuffer.allocate(keyLength.rewind().getInt());
         fc.read(key, offset);
+
 
         return key.rewind();
     }
@@ -71,7 +71,6 @@ final class SSTable implements Table {
         }
 
         return new Row(key, new Value(timestamp.rewind().getLong()));
-
     }
 
     @NotNull
@@ -145,7 +144,6 @@ final class SSTable implements Table {
                     //valueBytes
                     fc.write(data);
                 }
-
             }
 
             for (final ByteBuffer offset : offsets) {
