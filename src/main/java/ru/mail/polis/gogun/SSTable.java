@@ -40,8 +40,7 @@ final class SSTable implements Table {
         //read key
         final ByteBuffer key = ByteBuffer.allocate(keyLength.rewind().getInt());
         fc.read(key, offset);
-
-
+        
         return key.rewind();
     }
 

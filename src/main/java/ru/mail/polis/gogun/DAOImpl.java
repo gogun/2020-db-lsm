@@ -14,13 +14,13 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 import java.util.ArrayList;
-import java.util.Map.Entry;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.TreeMap;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 public class DAOImpl implements DAO {
@@ -120,7 +120,7 @@ public class DAOImpl implements DAO {
         if (memTable.getSize() > 0) {
             flush();
         }
-        for (Entry<Integer, Table> elem : ssTables.entrySet()) {
+        for (final Entry<Integer, Table> elem : ssTables.entrySet()) {
             elem.getValue().close();
         }
     }
