@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -160,8 +161,8 @@ final class SSTable implements Table {
         throw new UnsupportedOperationException("Immutable");
     }
 
-    public void deleteFile() {
-        file.delete();
+    public void deleteFile() throws IOException {
+        Files.delete(file.toPath());
     }
 
     @Override
