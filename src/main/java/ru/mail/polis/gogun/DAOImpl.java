@@ -28,7 +28,7 @@ public class DAOImpl implements DAO {
     private static final String TEMP = ".tmp";
 
     private MemTable memTable;
-    private final NavigableMap<Integer, Table> ssTables;
+    private final NavigableMap<Integer, SSTable> ssTables;
 
     @NotNull
     private final File storage;
@@ -68,6 +68,14 @@ public class DAOImpl implements DAO {
     @NotNull
     @Override
     public Iterator<Record> iterator(@NotNull final ByteBuffer from) throws IOException {
+        final Iterator<Row> fresh = rowIterator(from);
+        final Iterator<Row> alive = Iterators.filter(fresh, e -> !e.getValue(). isTombstone());
+
+        return Iterators.transform(alive, e -> Record.of(e.getKey(), e.getValue().getData()));
+    }
+
+    @NotNull
+    private Iterator<Row> rowIterator(@NotNull final ByteBuffer from) throws IOException {
         final List<Iterator<Row>> iters = new ArrayList<>(ssTables.size() + 1);
         iters.add(memTable.iterator(from));
         ssTables.descendingMap().values().forEach(t -> {
@@ -78,10 +86,28 @@ public class DAOImpl implements DAO {
             }
         });
         final Iterator<Row> merged = Iterators.mergeSorted(iters, Row.COMPARATOR);
-        final Iterator<Row> fresh = Iters.collapseEquals(merged, Row::getKey);
-        final Iterator<Row> alive = Iterators.filter(fresh, e -> !e.getValue().isTombstone());
 
-        return Iterators.transform(alive, e -> Record.of(e.getKey(), e.getValue().getData()));
+        return Iters.collapseEquals(merged, Row::getKey);
+    }
+
+    @Override
+    public void compact() throws IOException {
+        //get fresh rows
+        final Iterator<Row> freshRows = rowIterator(ByteBuffer.allocate(0));
+        final File file = new File(storage, generation + TEMP);
+        //save them
+        SSTable.serialize(file, freshRows);
+        //delete old
+        for (final SSTable table : ssTables.values()) {
+            table.deleteFile();
+        }
+        ssTables.clear();
+
+        final File dst = new File(storage, generation + SUFFIX);
+        Files.move(file.toPath(), dst.toPath(), StandardCopyOption.ATOMIC_MOVE);
+        ssTables.put(generation, new SSTable(dst));
+
+        generation = ssTables.size() + 1;
     }
 
     @Override
@@ -119,7 +145,7 @@ public class DAOImpl implements DAO {
         if (memTable.getSize() > 0) {
             flush();
         }
-        for (final Entry<Integer, Table> elem : ssTables.entrySet()) {
+        for (final Entry<Integer, SSTable> elem : ssTables.entrySet()) {
             elem.getValue().close();
         }
     }

@@ -15,10 +15,12 @@ import java.util.List;
 final class SSTable implements Table {
     @NotNull
     private final FileChannel fc;
+    private final File file;
     private final int numOffsets;
     private final long dataSize;
 
     public SSTable(@NotNull final File file) throws IOException {
+        this.file = file;
         this.fc = FileChannel.open(file.toPath(), StandardOpenOption.READ);
         final long fileSize = fc.size();
         final ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES);
@@ -156,6 +158,10 @@ final class SSTable implements Table {
     @Override
     public void upsert(@NotNull final ByteBuffer key, @NotNull final ByteBuffer value) {
         throw new UnsupportedOperationException("Immutable");
+    }
+
+    public void deleteFile() {
+        file.delete();
     }
 
     @Override
